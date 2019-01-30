@@ -1,15 +1,16 @@
 import React from 'react'
 
 import classes from './Cockpit.css';
+import Auxiliary from '../../hoc/Auxiliary';
 
 const cockpit = (props) => {
 
     const assignedClasses = [];
 
-    let btnClass = '';
+    let btnClass = classes.Button;
 
     if(props.showPersons){
-        btnClass = classes.Red;
+        btnClass = [classes.Button, classes.Red].join(' ');
     }
 
     if(props.persons.length <= 2){
@@ -20,14 +21,15 @@ const cockpit = (props) => {
     }
 
     return (
-    <div className={classes.Cockpit}>
-        <h1>{props.showTitle}</h1>
-        <p className={assignedClasses.join(' ')}>This is bananas. B A N A N A S</p>
-        <button 
-            className = {btnClass}
-            onClick={props.clicked}>Toggle Persons</button> 
-    </div>
+        <Auxiliary>
+            <h1>{props.showTitle}</h1>
+            <p className={assignedClasses.join(' ')}>This is bananas. B A N A N A S</p>
+            <button 
+                className = {btnClass}
+                onClick={props.clicked}>Toggle Persons</button> 
+            <button onClick={props.login}>Log in</button>
+        </Auxiliary>
     );
 }
 
-export default cockpit;
+export default React.memo(cockpit);

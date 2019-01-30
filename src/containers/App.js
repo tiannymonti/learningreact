@@ -1,11 +1,15 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 //import Radium, {StyleRoot} from 'radium';
 import classes from './App.css';
 import Persons from '../components/Persons/Persons';
 import Cockpit from '../components/Cockpit/Cockpit';
+import withClass from '../hoc/WithClass';
+import Auxiliary from '../hoc/Auxiliary';
 //import ErrorBoundary from '../ErrorBoundary/ErrorBoundary'
 
-class App extends Component {
+export const AuthContext = React.createContext(false);
+
+class App extends PureComponent {
   constructor(props){
     super(props);
     console.log('[App.js] Inside constructor', props); 
@@ -16,6 +20,8 @@ class App extends Component {
         {id:'3',name: 'Steph', age:26}
       ],
       showPersons: false,
+      toggleClicked: 0,
+      authenticated: false
     };
   }
 
@@ -26,6 +32,20 @@ class App extends Component {
   componentDidMount(){
     console.log('[App.js] Inside componentDidMount');
   }
+
+  static getDerivedStateFromProps(nextProps, prevState){
+    console.log("UPDATE Appjs Use this instead of componentWillUpdate", nextProps, prevState);
+  }
+
+  getSnapshotBeforeUpdate(){
+    console.log("Before update Appjs. You can save before the dom changes");
+  }
+
+  // shouldComponentUpdate(nextProps, nextState){
+  //   console.log('Should update');
+  //   return nextState.persons !== this.state.persons ||
+  //   nextState.showPersons !== this.state.showPersons;
+  // }
   
   // state = {
   //   persons: [
@@ -48,6 +68,11 @@ class App extends Component {
     });
   }
 
+  
+  loginHandler = () => {
+    this.setState({authenticated : true})
+  }
+
   deletePersonHandler = (personIndex) => {
     const persons = this.state.persons.slice();
     persons.splice(personIndex, 1);
@@ -58,8 +83,11 @@ class App extends Component {
 
   togglePersonsHandler = () => {
     const doesShow = this.state.showPersons;
-    this.setState({
-      showPersons: !doesShow
+    this.setState((prevState, props) => {
+      return {
+        showPersons: !doesShow,
+        toggleClicked: prevState.toggleClicked +1
+      }
     });
   }
 
@@ -77,16 +105,20 @@ class App extends Component {
     }
 
     return (
-      <div className={classes.App}>
+      <Auxiliary>
+        <button onClick={() => {this.setState({showPersons: true})}}>Show persons</button>
         <Cockpit 
          showTitle = {this.props.title}
          showPersons={this.state.showPersons} 
          persons={this.state.persons}
+         login = {this.loginHandler}
          clicked={this.togglePersonsHandler}/>
-        {persons}
-      </div>
+         <AuthContext.Provider value={this.state.authenticated}>
+          {persons}
+        </AuthContext.Provider>
+      </Auxiliary>
     );
   }
 }
 
-export default App;
+export default withClass(App, classes.App);
